@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox Account Checker Pro</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-[#0b0b0b] text-neutral-200 min-h-screen font-sans selection:bg-amber-500 selection:text-black pb-16">
+
+    <div class="max-w-2xl w-full mx-auto px-4 pt-10 space-y-6">
+        
+        <!-- Form Input Card -->
+        <div class="bg-[#121212] border border-neutral-800/80 rounded-2xl p-6 shadow-xl">
+            <div class="flex justify-between items-start mb-2">
+                <h1 class="text-xl font-bold tracking-tight text-white">Roblox Account Checker</h1>
+                <span class="bg-[#1a1a1a] border border-neutral-800 text-xs font-medium px-3 py-1.5 rounded-lg text-neutral-400">
+                    <i class="fa-solid fa-shield-halved"></i> Secure Panel
+                </span>
+            </div>
+            <p class="text-xs text-neutral-400 mb-5">Cookie Refresher & Comprehensive Account Data Viewer.</p>
+
+            <form method="POST" class="space-y-4">
+                <div class="space-y-1">
+                    <div class="flex justify-between items-center text-xs text-neutral-400 font-mono">
+                        <span>.ROBLOSECURITY</span>
+                        <span>v2</span>
+                    </div>
+                    <div class="relative">
+                        <input type="text" name="cookie" required 
+                               placeholder="Tempel Cookie .ROBLOSECURITY di sini..." 
+                               value="{{ cookie_input|default('') }}"
+                               class="w-full bg-[#181818] border border-neutral-800 rounded-xl px-4 py-3 text-xs text-neutral-300 placeholder-neutral-600 focus:outline-none focus:border-neutral-600 font-mono pr-10">
+                        <div class="absolute inset-y-0 right-0 flex items-center pr-3.5 pointer-events-none text-neutral-500">
+                            <i class="fa-solid fa-lock text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-1">
+                    <button type="submit" name="action" value="check" 
+                            class="flex-1 bg-sky-600 hover:bg-sky-500 text-white font-semibold py-3 px-4 rounded-xl text-xs transition shadow-lg shadow-sky-900/20 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-magnifying-glass"></i> Check Akun
+                    </button>
+                    <button type="submit" name="action" value="refresh" 
+                            class="flex-1 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold py-3 px-4 rounded-xl text-xs transition shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-rotate"></i> Refresh Cookie
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Hasil / Output Pengecekan -->
+        {% if result %}
+            {% if result.success is defined and not result.success %}
+                <div class="bg-rose-950/40 border border-rose-900/50 p-4 rounded-xl text-center text-rose-300 text-xs">
+                    {{ result.message }}
+                </div>
+            {% elif result.success is defined and result.success %}
+                <div class="bg-emerald-950/40 border border-emerald-900/50 p-4 rounded-xl text-center text-emerald-300 text-xs">
+                    Berhasil memperbarui cookie! Silakan cek kolom input di atas.
+                </div>
+            {% elif result.status and result.status != "Active / Valid" %}
+                <div class="bg-rose-950/40 border border-rose-900/50 p-4 rounded-xl text-center text-rose-300 text-xs">
+                    Cookie tidak valid atau sudah kedaluwarsa!
+                </div>
+            {% else %}
+                <div class="bg-[#121212] border border-neutral-800 rounded-2xl p-6 shadow-2xl space-y-5">
+                    
+                    <!-- Profil Info -->
+                    <div class="flex justify-between items-center border-b border-neutral-800 pb-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center border border-neutral-700 text-lg">
+                                👤
+                            </div>
+                            <div>
+                                <h2 class="text-base font-bold text-white tracking-wide">{{ result.username }}</h2>
+                                <p class="text-[11px] text-neutral-500 font-mono">#{{ result.user_id }} ({{ result.display_name }})</p>
+                            </div>
+                        </div>
+                        <a href="https://www.roblox.com/users/{{ result.user_id }}/profile" target="_blank" 
+                           class="bg-[#1a1a1a] hover:bg-[#222] border border-neutral-700/60 text-[11px] font-semibold px-3.5 py-2 rounded-xl text-sky-400 transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-cube"></i> Profile
+                        </a>
+                    </div>
+
+                    <!-- Statistik Finansial -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                        <div class="bg-[#181818] border border-neutral-800/80 p-3 rounded-xl text-center">
+                            <span class="text-[9px] uppercase font-bold text-neutral-500 tracking-wider block mb-1">ROBUX</span>
+                            <span class="text-base font-extrabold text-white">{{ result.robux }}</span>
+                        </div>
+                        <div class="bg-[#181818] border border-neutral-800/80 p-3 rounded-xl text-center">
+                            <span class="text-[9px] uppercase font-bold text-amber-500 tracking-wider block mb-1">PENDING</span>
+                            <span class="text-base font-extrabold text-amber-400">{{ result.pending_robux }}</span>
+                        </div>
+                        <div class="bg-[#181818] border border-neutral-800/80 p-3 rounded-xl text-center">
+                            <span class="text-[9px] uppercase font-bold text-emerald-500 tracking-wider block mb-1">TOTAL SPENT</span>
+                            <span class="text-base font-extrabold text-emerald-400">{{ result.total_spent }}</span>
+                        </div>
+                        <div class="bg-[#181818] border border-neutral-800/80 p-3 rounded-xl text-center">
+                            <span class="text-[9px] uppercase font-bold text-neutral-500 tracking-wider block mb-1">RAP</span>
+                            <span class="text-base font-extrabold text-white">{{ result.limiteds_rap }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Keamanan & Pembayaran -->
+                    <div class="space-y-2.5">
+                        <h3 class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-sky-400"></i> Keamanan & Pembayaran
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                            <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex justify-between sm:flex-col sm:items-start sm:gap-1">
+                                <span class="text-neutral-500 text-[10px] uppercase font-bold">Email</span>
+                                <span class="font-bold text-emerald-400">{{ result.email_status }}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex justify-between sm:flex-col sm:items-start sm:gap-1">
+                                <span class="text-neutral-500 text-[10px] uppercase font-bold">2FA Status</span>
+                                <span class="font-bold text-emerald-400">{{ result.two_fa }}</span>
+                            </div>
+                            <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex justify-between sm:flex-col sm:items-start sm:gap-1">
+                                <span class="text-neutral-500 text-[10px] uppercase font-bold">Payment</span>
+                                <span class="font-bold text-neutral-300">{{ result.saved_payment }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Inventory Accessories (Collectibles) Asli -->
+                    <div class="space-y-2.5">
+                        <h3 class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-shirt text-purple-400"></i> Inventory Accessories (Collectibles)
+                        </h3>
+                        {% if result.inventory_items %}
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                {% for inv in result.inventory_items %}
+                                    <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex justify-between items-center text-xs">
+                                        <span class="font-medium text-white truncate max-w-[180px]">{{ inv.name }}</span>
+                                        <span class="text-amber-400 font-bold text-[11px]">RAP: {{ inv.rap }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 text-xs text-neutral-400 text-center">
+                                Inventory disembunyikan (Private) atau tidak ada item collectible.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Spent Robux Map -->
+                    <div class="space-y-2.5">
+                        <h3 class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-emerald-400"></i> Spent Robux Map
+                        </h3>
+                        {% if result.spent_maps %}
+                            <div class="space-y-2">
+                                {% for item in result.spent_maps %}
+                                    <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex justify-between items-center text-xs">
+                                        <div>
+                                            <span class="font-bold text-white block">{{ item.map }}</span>
+                                            <span class="text-neutral-500 text-[10px]">{{ item.item }}</span>
+                                        </div>
+                                        <span class="text-emerald-400 font-bold">-{{ item.cost }} R$</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 text-xs text-neutral-400 text-center">
+                                Tidak ada riwayat pengeluaran.
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- History Map -->
+                    <div class="space-y-2.5">
+                        <h3 class="text-[11px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-map text-sky-400"></i> History Map
+                        </h3>
+                        <div class="space-y-2">
+                            {% for map in result.history_maps %}
+                                <div class="bg-[#181818] border border-neutral-800 rounded-xl p-3 flex items-center gap-3 text-xs">
+                                    <div class="w-7 h-7 bg-neutral-900 rounded-lg border border-neutral-800 flex items-center justify-center text-sky-400 text-xs">🎮</div>
+                                    <span class="font-medium text-white">{{ map }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+            {% endif %}
+        {% endif %}
+
+    </div>
+
+    <footer class="max-w-2xl w-full mx-auto px-4 py-6 flex justify-between items-center text-[11px] text-neutral-600 border-t border-neutral-900 mt-10">
+        <span>Roblox Account Checker Pro</span>
+        <span>v2.4.1</span>
+    </footer>
+
+</body>
+</html>
