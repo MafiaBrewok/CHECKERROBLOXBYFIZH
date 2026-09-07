@@ -6,23 +6,33 @@ import os
 template_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'templates'))
 app = Flask(__name__, template_folder=template_dir)
 
-def get_roblox_headers(cookie_string):
-    return {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+def get_roblox_headers(cookie_string, csrf_token=None):
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
         "Referer": "https://www.roblox.com/",
         "Origin": "https://www.roblox.com"
     }
+    if csrf_token:
+        headers["X-CSRF-Token"] = csrf_token
+    return headers
+
+def get_csrf_token(cookie_string):
+    cookies = {'.ROBLOSECURITY': cookie_string.strip()}
+    try:
+        res = requests.post("https://auth.roblox.com/v2/logout", cookies=cookies, headers=get_roblox_headers(cookie_string))
+        return res.headers.get("x-csrf-token", "")
+    except Exception:
+        return ""
 
 def refresh_roblox_cookie(old_cookie):
     cookies = {'.ROBLOSECURITY': old_cookie.strip()}
-    headers = get_roblox_headers(old_cookie)
+    csrf_token = get_csrf_token(old_cookie)
+    headers = get_roblox_headers(old_cookie, csrf_token)
+    
     try:
-        token_res = requests.post("https://auth.roblox.com/v2/logout", cookies=cookies, headers=headers)
-        csrf_token = token_res.headers.get("x-csrf-token")
         if not csrf_token:
             return {"success": False, "message": "Cookie Invalid atau sudah kedaluwarsa."}
         
-        headers["X-CSRF-Token"] = csrf_token
         response = requests.post("https://auth.roblox.com/v2/session/refresh", cookies=cookies, headers=headers)
         set_cookie_header = response.headers.get("Set-Cookie")
         
@@ -57,9 +67,9 @@ def get_game_icon(universe_id):
         pass
     return ""
 
-def get_user_email_info(cookie_string):
+def get_user_email_info(cookie_string, csrf_token):
     cookies = {'.ROBLOSECURITY': cookie_string.strip()}
-    headers = get_roblox_headers(cookie_string)
+    headers = get_roblox_headers(cookie_string, csrf_token)
     
     email_data = {"email": "Tidak dapat diakses / Tersembunyi", "verified": "Belum Terverifikasi"}
     try:
@@ -76,9 +86,9 @@ def get_user_email_info(cookie_string):
         
     return email_data
 
-def get_user_inventory(user_id, cookie_string):
+def get_user_inventory(user_id, cookie_string, csrf_token):
     cookies = {'.ROBLOSECURITY': cookie_string.strip()}
-    headers = get_roblox_headers(cookie_string)
+    headers = get_roblox_headers(cookie_string, csrf_token)
     inventory_url = f"https://inventory.roblox.com/v1/users/{user_id}/assets/collectibles?limit=100"
     
     items_list = []
@@ -121,9 +131,9 @@ def get_user_game_history(user_id):
         pass
     return history_maps if history_maps else [{"name": "Tidak ada riwayat game publik", "icon": ""}]
 
-def get_user_spent_history(user_id, cookie_string):
+def get_user_spent_history(user_id, cookie_string, csrf_token):
     cookies = {'.ROBLOSECURITY': cookie_string.strip()}
-    headers = get_roblox_headers(cookie_string)
+    headers = get_roblox_headers(cookie_string, csrf_token)
     spent_maps = []
     try:
         res = requests.get(f"https://economy.roblox.com/v1/users/{user_id}/transactions?transactionType=Purchases&limit=10", cookies=cookies, headers=headers)
@@ -142,7 +152,8 @@ def get_user_spent_history(user_id, cookie_string):
 
 def check_roblox_account(cookie_string):
     cookies = {'.ROBLOSECURITY': cookie_string.strip()}
-    headers = get_roblox_headers(cookie_string)
+    csrf_token = get_csrf_token(cookie_string)
+    headers = get_roblox_headers(cookie_string, csrf_token)
     
     auth_res = requests.get("https://users.roblox.com/v1/users/authenticated", cookies=cookies, headers=headers)
     if auth_res.status_code != 200:
@@ -156,10 +167,10 @@ def check_roblox_account(cookie_string):
     curr_res = requests.get(f"https://economy.roblox.com/v1/users/{user_id}/currency", cookies=cookies, headers=headers)
     robux_balance = curr_res.json().get("robux", 0) if curr_res.status_code == 200 else 0
 
-    email_info = get_user_email_info(cookie_string)
-    inventory_items, total_rap = get_user_inventory(user_id, cookie_string)
+    email_info = get_user_email_info(cookie_string, csrf_token)
+    inventory_items, total_rap = get_user_inventory(user_id, cookie_string, csrf_token)
     history_maps = get_user_game_history(user_id)
-    spent_maps = get_user_spent_history(user_id, cookie_string)
+    spent_maps = get_user_spent_history(user_id, cookie_string, csrf_token)
     avatar_url = get_user_full_avatar(user_id)
 
     return {
